@@ -1,0 +1,118 @@
+name: Edge Service CI - ARM64
+
+on:
+  pull_request:
+    branches: [ 'main', 'develop' ]
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+
+concurrency:
+  group: edge-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Check - Tests (ARM64)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Enable ARM64 emulation
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
+
+      - name: Verify ARM64 environment
+        run: |
+          docker run --rm --platform linux/arm64 python:3.14-slim \
+            python -c "import platform; print(platform.machine()); assert platform.machine() == 'aarch64'"
+
+      - name: Run automated tests
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            --cpus=2 \
+            --memory=1g \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            python:3.14-slim \
+            sh -lc "python -m pip install --no-cache-dir -r requirements.txt pytest && python -m pytest -v"
+
+  build:
+    name: Check - Build (ARM64)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Enable ARM64 emulation
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
+
+      - name: Install dependencies and compile
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            --cpus=2 \
+            --memory=1g \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            python:3.14-slim \
+            sh -lc "python -m pip install --no-cache-dir -r requirements.txt && python -m compileall -q ."
+
+  static-analysis:
+    name: Check - Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Enable ARM64 emulation
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
+
+      - name: Run Ruff checks
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            --cpus=2 \
+            --memory=1g \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            python:3.14-slim \
+            sh -lc "python -m pip install --no-cache-dir ruff && ruff check --output-format=github . && ruff format --check ."
+
+  dependency-security:
+    name: Check - Dependency Security (ARM64)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Enable ARM64 emulation
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
+
+      - name: Audit dependencies
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            --cpus=2 \
+            --memory=1g \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            python:3.14-slim \
+            sh -lc "python -m pip install --no-cache-dir -r requirements.txt pip-audit && pip-audit -r requirements.txt"
