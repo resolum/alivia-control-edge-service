@@ -1,0 +1,50 @@
+name: Jira - estado de la subtarea segun la revision
+
+on:
+  pull_request_review:
+    types: [submitted]
+  pull_request:
+    types: [review_requested]
+
+jobs:
+  notify-jira:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sacar la clave de Jira del nombre de la rama
+        id: key
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          KEY=$(echo "$BRANCH" | grep -oE '[A-Z]+-[0-9]+' | head -n 1)
+          echo "key=$KEY" >> "$GITHUB_OUTPUT"
+          echo "Rama: $BRANCH  ->  Clave: $KEY"
+
+      - name: Avisar a Jira (changes_requested)
+        if: >
+          steps.key.outputs.key != '' &&
+          github.event_name == 'pull_request_review' &&
+          github.event.review.state == 'changes_requested'
+        env:
+          JIRA_URL: ${{ secrets.JIRA_AP_TOFIX_WEBHOOK_URL }}
+          JIRA_SECRET: ${{ secrets.JIRA_AP_TOFIX_WEBHOOK_SECRET }}
+          KEY: ${{ steps.key.outputs.key }}
+        run: |
+          curl -sS --fail -X POST "$JIRA_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-Automation-Webhook-Token: $JIRA_SECRET" \
+            -d "{\"issueKey\":\"$KEY\",\"action\":\"changes_requested\"}"
+
+      - name: Avisar a Jira (review_requested)
+        if: >
+          steps.key.outputs.key != '' &&
+          github.event_name == 'pull_request' &&
+          github.event.action == 'review_requested'
+        env:
+          JIRA_URL: ${{ secrets.JIRA_AP_TOREVIEW_WEBHOOK_URL }}
+          JIRA_SECRET: ${{ secrets.JIRA_AP_TOREVIEW_WEBHOOK_SECRET }}
+          KEY: ${{ steps.key.outputs.key }}
+        run: |
+          curl -sS --fail -X POST "$JIRA_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-Automation-Webhook-Token: $JIRA_SECRET" \
+            -d "{\"issueKey\":\"$KEY\",\"action\":\"review_requested\"}"
