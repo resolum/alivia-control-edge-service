@@ -2,8 +2,6 @@
 
 Servicio local responsable de interpretar, validar y orquestar comandos para los dispositivos Alivia sin depender de una conexión permanente a Internet.
 
-La propuesta de arquitectura DDD, las vistas C4, el contrato WebSocket con el embebido del micrófono y los flujos MQTT están documentados en [docs/architecture.md](docs/architecture.md).
-
 ## Ejecución local
 
 ```bash
