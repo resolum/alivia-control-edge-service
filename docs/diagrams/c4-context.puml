@@ -1,0 +1,19 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title Alivia - C4 Nivel 1: Contexto del Control Edge
+
+Person(assisted, "Persona asistida", "Controla su entorno mediante la voz")
+System_Ext(microphone, "Embedded Microphone", "Captura audio y reproduce confirmaciones")
+System(controlEdge, "Alivia Control Edge", "Interpreta, valida y orquesta comandos localmente")
+System_Ext(actuation, "Sistema local de actuación", "Ejecuta y verifica acciones físicas")
+System_Ext(cloud, "Alivia Cloud", "Configura la red y recibe telemetría")
+
+Rel(assisted, microphone, "Emite comandos y escucha confirmaciones", "Voz")
+Rel_Bidirectional(microphone, controlEdge, "Audio, estado y confirmaciones", "WebSocket/LAN")
+Rel(controlEdge, actuation, "Comandos correlacionados")
+Rel(actuation, controlEdge, "Resultados confirmados")
+Rel_Bidirectional(controlEdge, cloud, "Configuración y sincronización", "HTTPS/Internet")
+
+SHOW_LEGEND()
+@enduml
