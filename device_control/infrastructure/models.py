@@ -1,5 +1,7 @@
 from peewee import CharField, DateTimeField, FloatField, TextField
+
 from shared.infrastructure.database import BaseModel
+
 
 class DeviceCommandModel(BaseModel):
     command_id = CharField(primary_key=True)
@@ -14,6 +16,7 @@ class DeviceCommandModel(BaseModel):
     expires_at = DateTimeField()
     result_code = CharField(null=True)
     confirmed_state = CharField(null=True)
+
 
 class InboxModel(BaseModel):
     message_id = CharField(primary_key=True)

@@ -1,5 +1,7 @@
 from peewee import CharField, DateTimeField, TextField
+
 from shared.infrastructure.database import BaseModel
+
 
 class OutboxModel(BaseModel):
     event_id = CharField(primary_key=True)

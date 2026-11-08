@@ -1,17 +1,27 @@
 import json
-from typing import Callable
+from collections.abc import Callable
+
 import paho.mqtt.client as mqtt
+
 
 class InMemoryCommandBus:
     """Useful for tests and local development without a broker."""
+
     def __init__(self):
         self.messages: list[dict] = []
+
     def publish(self, payload: dict) -> None:
         self.messages.append(payload)
 
+
 class MqttCommandBus:
-    def __init__(self, host: str, port: int, network_id: str,
-                 result_handler: Callable[[dict], None]):
+    def __init__(
+        self,
+        host: str,
+        port: int,
+        network_id: str,
+        result_handler: Callable[[dict], None],
+    ):
         self.host, self.port, self.network_id = host, port, network_id
         self.result_handler = result_handler
         self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -21,6 +31,7 @@ class MqttCommandBus:
     @property
     def command_topic(self) -> str:
         return f"alivia/v1/networks/{self.network_id}/actuator-edge/commands"
+
     @property
     def result_topic(self) -> str:
         return f"alivia/v1/networks/{self.network_id}/control-edge/results"

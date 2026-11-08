@@ -1,6 +1,7 @@
 import json
 from threading import RLock
 
+
 class ConnectionRegistry:
     def __init__(self):
         self._connections = {}
@@ -21,6 +22,7 @@ class ConnectionRegistry:
         if socket is not None:
             socket.send(json.dumps(message))
 
+
 class MicrophoneWebSocketGateway:
     def __init__(self, iam_service, dispatch_service, registry: ConnectionRegistry):
         self.iam, self.dispatch, self.registry = iam_service, dispatch_service, registry
@@ -35,7 +37,9 @@ class MicrophoneWebSocketGateway:
                 if raw is None:
                     break
                 if isinstance(raw, bytes):
-                    socket.send(json.dumps({"type": "audio.chunk.accepted", "bytes": len(raw)}))
+                    socket.send(
+                        json.dumps({"type": "audio.chunk.accepted", "bytes": len(raw)})
+                    )
                     continue
                 self._handle_message(socket, device_id, json.loads(raw))
         finally:
@@ -47,7 +51,9 @@ class MicrophoneWebSocketGateway:
             socket.send(json.dumps({"type": "pong"}))
             return
         if message_type != "voice.intent.recognized":
-            socket.send(json.dumps({"type": "message.rejected", "code": "UNSUPPORTED_MESSAGE"}))
+            socket.send(
+                json.dumps({"type": "message.rejected", "code": "UNSUPPORTED_MESSAGE"})
+            )
             return
         payload = message.get("payload", {})
         command = self.dispatch.execute(
@@ -57,6 +63,12 @@ class MicrophoneWebSocketGateway:
             action=payload["action"],
             confidence=float(payload["confidence"]),
         )
-        socket.send(json.dumps({"type": "command.dispatched",
-                                "correlation_id": command.correlation_id,
-                                "payload": {"command_id": command.command_id}}))
+        socket.send(
+            json.dumps(
+                {
+                    "type": "command.dispatched",
+                    "correlation_id": command.correlation_id,
+                    "payload": {"command_id": command.command_id},
+                }
+            )
+        )

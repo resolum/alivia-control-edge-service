@@ -26,47 +26,88 @@ OPENAPI_TEMPLATE = {
     "paths": {
         "/health": {
             "get": {
-                "tags": ["Shared"], "summary": "Obtiene la salud del Edge",
-                "responses": {"200": {"description": "Servicio disponible",
-                    "schema": {"$ref": "#/definitions/HealthResponse"}}},
+                "tags": ["Shared"],
+                "summary": "Obtiene la salud del Edge",
+                "responses": {
+                    "200": {
+                        "description": "Servicio disponible",
+                        "schema": {"$ref": "#/definitions/HealthResponse"},
+                    }
+                },
             }
         },
         "/iam/nodes": {
             "post": {
-                "tags": ["IAM"], "summary": "Registra o actualiza un nodo",
+                "tags": ["IAM"],
+                "summary": "Registra o actualiza un nodo",
                 "security": [{"SetupToken": []}],
-                "parameters": [{"in": "body", "name": "body", "required": True,
-                    "schema": {"$ref": "#/definitions/RegisterNodeRequest"}}],
-                "responses": {"201": {"description": "Nodo registrado"},
-                              "401": {"description": "Setup token inválido"}},
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": True,
+                        "schema": {"$ref": "#/definitions/RegisterNodeRequest"},
+                    }
+                ],
+                "responses": {
+                    "201": {"description": "Nodo registrado"},
+                    "401": {"description": "Setup token inválido"},
+                },
             }
         },
         "/iam/permissions": {
             "post": {
-                "tags": ["IAM"], "summary": "Autoriza a un nodo para controlar un dispositivo",
+                "tags": ["IAM"],
+                "summary": "Autoriza a un nodo para controlar un dispositivo",
                 "security": [{"SetupToken": []}],
-                "parameters": [{"in": "body", "name": "body", "required": True,
-                    "schema": {"$ref": "#/definitions/RegisterPermissionRequest"}}],
-                "responses": {"201": {"description": "Permiso registrado"},
-                              "401": {"description": "Setup token inválido"}},
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": True,
+                        "schema": {"$ref": "#/definitions/RegisterPermissionRequest"},
+                    }
+                ],
+                "responses": {
+                    "201": {"description": "Permiso registrado"},
+                    "401": {"description": "Setup token inválido"},
+                },
             }
         },
         "/commands/{command_id}": {
             "get": {
-                "tags": ["Device Control"], "summary": "Consulta un comando",
-                "parameters": [{"name": "command_id", "in": "path", "required": True,
-                                "type": "string"}],
-                "responses": {"200": {"description": "Comando encontrado",
-                    "schema": {"$ref": "#/definitions/CommandResponse"}},
-                              "404": {"description": "Comando no encontrado"}},
+                "tags": ["Device Control"],
+                "summary": "Consulta un comando",
+                "parameters": [
+                    {
+                        "name": "command_id",
+                        "in": "path",
+                        "required": True,
+                        "type": "string",
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comando encontrado",
+                        "schema": {"$ref": "#/definitions/CommandResponse"},
+                    },
+                    "404": {"description": "Comando no encontrado"},
+                },
             }
         },
         "/telemetry/sync": {
             "post": {
-                "tags": ["Telemetry"], "summary": "Sincroniza eventos pendientes con Cloud",
-                "responses": {"200": {"description": "Sincronización completada",
-                    "schema": {"type": "object", "properties": {
-                        "synchronized": {"type": "integer"}}}}},
+                "tags": ["Telemetry"],
+                "summary": "Sincroniza eventos pendientes con Cloud",
+                "responses": {
+                    "200": {
+                        "description": "Sincronización completada",
+                        "schema": {
+                            "type": "object",
+                            "properties": {"synchronized": {"type": "integer"}},
+                        },
+                    }
+                },
             }
         },
         "/ws/v1/microphones/{device_id}": {
@@ -78,33 +119,64 @@ OPENAPI_TEMPLATE = {
                     "Recibe frames binarios de audio y mensajes voice.intent.recognized."
                 ),
                 "parameters": [
-                    {"name": "device_id", "in": "path", "required": True, "type": "string"},
-                    {"name": "api_key", "in": "query", "required": True, "type": "string"},
+                    {
+                        "name": "device_id",
+                        "in": "path",
+                        "required": True,
+                        "type": "string",
+                    },
+                    {
+                        "name": "api_key",
+                        "in": "query",
+                        "required": True,
+                        "type": "string",
+                    },
                 ],
-                "responses": {"101": {"description": "Switching Protocols"},
-                              "401": {"description": "Credenciales inválidas"}},
+                "responses": {
+                    "101": {"description": "Switching Protocols"},
+                    "401": {"description": "Credenciales inválidas"},
+                },
             }
         },
     },
     "definitions": {
-        "HealthResponse": {"type": "object", "properties": {
-            "status": {"type": "string", "example": "UP"},
-            "edge_id": {"type": "string", "example": "control-edge-01"}}},
-        "RegisterNodeRequest": {"type": "object", "required": ["node_id", "api_key"],
-            "properties": {"node_id": {"type": "string", "example": "microphone-01"},
-                           "api_key": {"type": "string", "example": "device-secret"},
-                           "node_type": {"type": "string", "example": "MICROPHONE"}}},
-        "RegisterPermissionRequest": {"type": "object",
+        "HealthResponse": {
+            "type": "object",
+            "properties": {
+                "status": {"type": "string", "example": "UP"},
+                "edge_id": {"type": "string", "example": "control-edge-01"},
+            },
+        },
+        "RegisterNodeRequest": {
+            "type": "object",
+            "required": ["node_id", "api_key"],
+            "properties": {
+                "node_id": {"type": "string", "example": "microphone-01"},
+                "api_key": {"type": "string", "example": "device-secret"},
+                "node_type": {"type": "string", "example": "MICROPHONE"},
+            },
+        },
+        "RegisterPermissionRequest": {
+            "type": "object",
             "required": ["source_node_id", "target_device_id", "device_type"],
-            "properties": {"source_node_id": {"type": "string", "example": "microphone-01"},
-                           "target_device_id": {"type": "string", "example": "door-01"},
-                           "device_type": {"type": "string",
-                               "enum": ["DOOR", "WINDOW", "LIGHT"]}}},
-        "CommandResponse": {"type": "object", "properties": {
-            "command_id": {"type": "string"}, "correlation_id": {"type": "string"},
-            "target_device_id": {"type": "string"}, "device_type": {"type": "string"},
-            "action": {"type": "string"}, "status": {"type": "string"},
-            "result_code": {"type": "string", "x-nullable": True},
-            "confirmed_state": {"type": "string", "x-nullable": True}}},
+            "properties": {
+                "source_node_id": {"type": "string", "example": "microphone-01"},
+                "target_device_id": {"type": "string", "example": "door-01"},
+                "device_type": {"type": "string", "enum": ["DOOR", "WINDOW", "LIGHT"]},
+            },
+        },
+        "CommandResponse": {
+            "type": "object",
+            "properties": {
+                "command_id": {"type": "string"},
+                "correlation_id": {"type": "string"},
+                "target_device_id": {"type": "string"},
+                "device_type": {"type": "string"},
+                "action": {"type": "string"},
+                "status": {"type": "string"},
+                "result_code": {"type": "string", "x-nullable": True},
+                "confirmed_state": {"type": "string", "x-nullable": True},
+            },
+        },
     },
 }
