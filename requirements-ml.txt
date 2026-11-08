@@ -1,0 +1,8 @@
+# Dependencias pesadas del pipeline de voz. El CI NO las instala; los tests usan fakes.
+# Instalar sobre requirements.txt:  pip install -r requirements.txt -r requirements-ml.txt
+vosk==0.3.44
+faster-whisper==1.2.1
+# silero-vad arrastra torch; con onnx=True usa onnxruntime para la inferencia.
+silero-vad==6.2.3
+onnxruntime==1.31.1
+piper-tts==1.8.0
