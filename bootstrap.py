@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request
 from flask_sock import Sock
 from flasgger import Swagger
 
+from alivia_edge.http_status import voice_status_api
 from config import Settings
 from device_control.application.services import DispatchDeviceCommand, HandleExecutionResult
 from device_control.infrastructure.messaging import InMemoryCommandBus, MqttCommandBus
@@ -65,6 +66,7 @@ def create_app(settings: Settings | None = None) -> Flask:
     app.register_blueprint(iam_api)
     app.register_blueprint(device_control_api)
     app.register_blueprint(telemetry_api)
+    app.register_blueprint(voice_status_api)
     sock = Sock(app)
 
     @sock.route("/ws/v1/microphones/<device_id>")
